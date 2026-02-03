@@ -61,7 +61,7 @@ def get_user_conversations(user_id: int = Depends(get_current_user)):
     conv = get_or_create_conversation(user_id)
     return conv
 
-# envoyer un message a l'ia
+# envoyer un message à l'IA et sauvegarder la réponse
 @app.post("/chat")
 def chat(request: AIRequest, user_id: int = Depends(get_current_user)):
     if not LLM_API_KEY:

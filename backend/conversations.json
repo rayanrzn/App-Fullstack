@@ -1,0 +1,1 @@
+{"_default": {"1": {"id": 1, "user_id": 1, "messages": [{"role": "user", "content": "bonjour!!!", "timestamp": "2026-02-03T09:57:03.643816"}, {"role": "assistant", "content": "Bonjour ! Comment puis-je vous aider aujourd'hui ?", "timestamp": "2026-02-03T09:57:05.503657"}], "created_at": "2026-02-03T09:56:18.052923"}}}

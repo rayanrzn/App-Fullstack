@@ -1,11 +1,11 @@
 from tinydb import TinyDB, Query
-from config import DATABASE_PATH
+from config import DATABASE_DIR
 from datetime import datetime
 import os
 
-# chemins des deux fichiers json separes
-users_db_path = os.path.join(os.path.dirname(DATABASE_PATH) or "./", "users.json")
-conversations_db_path = os.path.join(os.path.dirname(DATABASE_PATH) or "./", "conversations.json")
+# chemins des deux fichiers json séparés
+users_db_path = os.path.join(DATABASE_DIR, "users.json")
+conversations_db_path = os.path.join(DATABASE_DIR, "conversations.json")
 
 # creer les deux bases de donnees
 users_db = TinyDB(users_db_path)
