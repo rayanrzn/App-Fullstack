@@ -65,34 +65,37 @@ function Chat() {
 
   return (
     <PageFrame
-      title="chatbot"
-      description="envoie un message, le bot répond et tu peux consulter l'historique"
+      title="Neural Interface"
+      description="Direct uplink to AI Core."
     >
-      {error && <p style={{ color: 'red', marginTop: 0 }}>{error}</p>}
-      <div style={{ minHeight: '120px', background: '#f9f9f9', padding: '12px', borderRadius: '8px' }}>
-        {messages.length === 0 && <p>aucun message pour le moment.</p>}
+      {error && <div style={{ color: 'var(--accent-error)' }}>{error}</div>}
+      
+      <div className="chat-container">
+        {messages.length === 0 && <p style={{ textAlign: 'center', opacity: 0.5, marginTop: '20px' }}>System Ready. Awaiting Input.</p>}
         {messages.map((msg, index) => (
-          <p key={index} style={{ margin: '6px 0' }}>
-            <strong>{msg.role}:</strong> {msg.content}
-          </p>
+          <div key={index} className={`message ${msg.role}`}>
+            <strong>{msg.role === 'user' ? 'OPERATOR' : 'AI CORE'}</strong> 
+            {msg.content}
+          </div>
         ))}
       </div>
-      <form onSubmit={handleSubmit} style={{ marginTop: '12px' }}>
-        <div>
-          <label>message</label>
-          <br />
+      
+      <form onSubmit={handleSubmit}>
+        <div className="form-group" style={{ marginBottom: '16px' }}>
           <input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            style={{ width: '100%' }}
+            placeholder="Type command..."
+            autoFocus
           />
         </div>
-        <button type="submit" style={{ marginTop: '10px', width: '100%' }}>
-          envoyer
+        <button type="submit">
+          Transmit
         </button>
       </form>
-      <button onClick={logout} style={{ marginTop: '16px' }}>
-        quitter et se déconnecter
+      
+      <button onClick={logout} className="btn-danger" style={{ marginTop: '20px' }}>
+        Terminate Session
       </button>
     </PageFrame>
   )

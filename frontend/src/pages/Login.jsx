@@ -23,35 +23,31 @@ function Login() {
   }
 
   return (
-    <PageFrame
-      title="connexion"
-    >
-      {error && <p style={{ color: 'red', marginTop: 0 }}>{error}</p>}
+    <PageFrame title="Portal Access">
+      {error && <div style={{ color: 'var(--accent-error)', marginBottom: '16px', background: 'rgba(239, 68, 68, 0.1)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>{error}</div>}
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '12px' }}>
-          <label>email</label>
-          <br />
+        <div className="form-group">
+          <label>Identity (Email)</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ width: '100%' }}
+            placeholder="ACCESS ID"
           />
         </div>
-        <div style={{ marginBottom: '12px' }}>
-          <label>mot de passe</label>
-          <br />
+        <div className="form-group">
+          <label>Passcode</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: '100%' }}
+            placeholder="••••••••"
           />
         </div>
-        <button type="submit" style={{ width: '100%' }}>
-          se connecter
+        <button type="submit">
+          Initialize Session
         </button>
       </form>
     </PageFrame>

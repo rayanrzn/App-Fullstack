@@ -1,36 +1,26 @@
-import { Link } from 'react-router-dom'
-
-const frameStyle = {
-  maxWidth: '420px',
-  margin: '40px auto',
-  padding: '24px',
-  border: '1px solid #ccc',
-  borderRadius: '12px',
-  background: '#fff',
-  boxShadow: '0 6px 20px rgba(0,0,0,0.08)'
-}
-
-const sectionStyle = {
-  marginBottom: '18px'
-}
-
-const navStyle = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  marginBottom: '20px'
-}
+import { Link, useLocation } from 'react-router-dom'
 
 function PageFrame({ title, description, children }) {
+  const location = useLocation()
+  
+  const isActive = (path) => location.pathname === path ? 'active' : ''
+
   return (
-    <div style={frameStyle}>
-      <div style={navStyle}>
-        <Link to="/login">login</Link>
-        <Link to="/register">inscription</Link>
-        <Link to="/dashboard">dashboard</Link>
+    <div className="glass-card">
+      <div className="nav-container">
+        <div className="nav-links">
+          <Link to="/login" className={isActive('/login')}>Login</Link>
+          <Link to="/register" className={isActive('/register')}>Join</Link>
+        </div>
+        <div className="nav-links">
+          <Link to="/dashboard" className={isActive('/dashboard')}>Dashboard</Link>
+        </div>
       </div>
-      <h1 style={{ marginTop: 0 }}>{title}</h1>
-      {description && <p style={{ marginTop: 0, marginBottom: '12px', color: '#555' }}>{description}</p>}
-      <div style={sectionStyle}>{children}</div>
+      
+      <h1>{title}</h1>
+      {description && <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.9rem' }}>{description}</p>}
+      
+      <div>{children}</div>
     </div>
   )
 }

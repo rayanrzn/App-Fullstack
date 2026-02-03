@@ -24,35 +24,33 @@ function Register() {
 
   return (
     <PageFrame
-      title="inscription"
-      description="cree un compte et recois un token auto pour naviguer sur le dashboard"
+      title="New Protocol"
+      description="Initialize a new secure identity."
     >
-      {error && <p style={{ color: 'red', marginTop: 0 }}>{error}</p>}
+      {error && <div style={{ color: 'var(--accent-error)', marginBottom: '16px' }}>{error}</div>}
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '12px' }}>
-          <label>email</label>
-          <br />
+        <div className="form-group">
+          <label>Identity (Email)</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ width: '100%' }}
+            placeholder="NEW ID"
           />
         </div>
-        <div style={{ marginBottom: '12px' }}>
-          <label>mot de passe</label>
-          <br />
+        <div className="form-group">
+          <label>Secure Key (Password)</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: '100%' }}
+            placeholder="••••••••"
           />
         </div>
-        <button type="submit" style={{ width: '100%' }}>
-          s'inscrire
+        <button type="submit">
+          Establish Connection
         </button>
       </form>
     </PageFrame>
