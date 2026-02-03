@@ -3,6 +3,7 @@ from jose import JWTError, jwt
 from bcrypt import hashpw, checkpw, gensalt
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from database import get_user_by_email, create_user
+from main import UserRegister
 
 # hasher un mot de passe avec bcrypt
 def hash_password(password: str) -> str:
@@ -33,29 +34,29 @@ def verify_token(token: str):
         return None
 
 # enregistrer un nouvel utilisateur
-def register_user(email: str, password: str):
+def register_user(user: UserRegister):
     # verifier si l'utilisateur existe
-    if get_user_by_email(email):
+    if get_user_by_email(user.email):
         return None
     
     # hasher et creer
-    password_hash = hash_password(password)
-    user = create_user(email, password_hash)
+    password_hash = hash_password(user.password)
+    user_created = create_user(user.email, password_hash)
     
     # creer le token
-    token = create_access_token(user["id"])
+    token = create_access_token(user_created["id"])
     
-    return {"user_id": user["id"], "email": user["email"], "token": token}
+    return {"token": token}
 
 # connecter un utilisateur
-def login_user(email: str, password: str):
-    user = get_user_by_email(email)
+def login_user(user: UserRegister):
+    user_email = get_user_by_email(user.email)
     
     # verifier email et password
-    if not user or not verify_password(password, user["password_hash"]):
+    if not user_email or not verify_password(user.password, user["password_hash"]):
         return None
     
     # creer le token
     token = create_access_token(user["id"])
     
-    return {"user_id": user["id"], "email": user["email"], "token": token}
+    return {"token": token}
