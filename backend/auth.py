@@ -3,7 +3,6 @@ from jose import JWTError, jwt
 from bcrypt import hashpw, checkpw, gensalt
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from database import get_user_by_email, create_user
-from main import UserRegister
 
 # hasher un mot de passe avec bcrypt
 def hash_password(password: str) -> str:
@@ -35,6 +34,7 @@ def verify_token(token: str):
 
 # enregistrer un nouvel utilisateur
 def register_user(user: UserRegister):
+    from main import UserRegister
     # verifier si l'utilisateur existe
     if get_user_by_email(user.email):
         return None
