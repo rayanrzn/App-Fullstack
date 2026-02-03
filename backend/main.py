@@ -71,7 +71,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 # inscrire un nouvel utilisateur
 @app.post("/register", response_model=TokenResponse)
 def register(user: UserRegister):
-    result = register_user(user)
+    result = register_user(user.email, user.password)
     if result is None:
         raise HTTPException(status_code=400, detail="Email already exists")
     return TokenResponse(access_token=result["token"], token_type="bearer")

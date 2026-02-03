@@ -19,7 +19,7 @@ def create_access_token(user_id: int) -> str:
         "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    return token
+    return token 
 
 # verifier et decoder un jwt token
 def verify_token(token: str):
@@ -33,27 +33,26 @@ def verify_token(token: str):
         return None
 
 # enregistrer un nouvel utilisateur
-def register_user(user: UserRegister):
-    from main import UserRegister
+def register_user(email: str, password: str):
     # verifier si l'utilisateur existe
-    if get_user_by_email(user.email):
+    if get_user_by_email(email):
         return None
     
     # hasher et creer
-    password_hash = hash_password(user.password)
-    user_created = create_user(user.email, password_hash)
+    password_hash = hash_password(password)
+    user = create_user(email, password_hash)
     
     # creer le token
-    token = create_access_token(user_created["id"])
+    token = create_access_token(user["id"])
     
     return {"token": token}
 
 # connecter un utilisateur
-def login_user(user: UserRegister):
-    user_email = get_user_by_email(user.email)
+def login_user(email: str, password: str):
+    user = get_user_by_email(email)
     
     # verifier email et password
-    if not user_email or not verify_password(user.password, user["password_hash"]):
+    if not user or not verify_password(password, user["password_hash"]):
         return None
     
     # creer le token
