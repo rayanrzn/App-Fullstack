@@ -19,3 +19,7 @@ LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_API_URL = os.getenv("LLM_API_URL", "https://openrouter.ai/api/v1")
 # modèle LLM à utiliser
 LLM_MODEL = os.getenv("LLM_MODEL", "meta-llama/llama-3-8b-instruct")
+
+# On récupère le chemin du dossier où se trouve le fichier config.py lui-même
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'database.db')}"

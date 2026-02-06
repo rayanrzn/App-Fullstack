@@ -4,9 +4,9 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import List, Optional
 from auth import register_user, login_user, verify_token
-from database import get_or_create_conversation, add_message_to_conversation, get_user_by_id
 import requests
 from config import LLM_API_KEY, LLM_API_URL, LLM_MODEL
+from Databases import *
 
 app = FastAPI()
 security = HTTPBearer()
@@ -43,6 +43,7 @@ class ConversationResponse(BaseModel):
 # requete vers l'ia
 class AIRequest(BaseModel):
     message: str
+    conversation_id : int
 
 # reponse avec token jwt
 class TokenResponse(BaseModel):
@@ -66,12 +67,14 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         raise HTTPException(status_code=401, detail="Invalid token")
     return user_id
 
-# routes publiques
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
 
 # inscrire un nouvel utilisateur
 @app.post("/register", response_model=TokenResponse)
-def register(user: UserRegister):
-    result = register_user(user.email, user.password)
+def register(user: UserRegister, session: Session = Depends(get_session)):
+    result = register_user(user.email, user.password, session)
     if result is None:
         raise HTTPException(status_code=400, detail="Email already exists")
     return TokenResponse(access_token=result["token"], token_type="bearer")
@@ -88,26 +91,38 @@ def login(user: UserLogin):
 
 # recuperer les infos de l'utilisateur connecte
 @app.get("/me")
-def get_me(user_id: int = Depends(get_current_user)):
-    user = get_user_by_id(user_id)
+def get_me(user_id: int = Depends(verify_token), session: Session = Depends(get_session)):
+    user = get_user_by_id(user_id, session)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
 # recuperer la conversation de l'utilisateur
-@app.get("/conversations", response_model=ConversationResponse)
-def get_user_conversations(user_id: int = Depends(get_current_user)):
-    conv = get_or_create_conversation(user_id)
+@app.get("/conversations", response_model=ConversationResponse,)
+def get_user_conversations(user_id: int = Depends(get_current_user), session: Session = Depends(get_session)):
+    conv = get_user_conversation(user_id, session)
     return conv
 
 # envoyer un message à l'IA et sauvegarder la réponse
 @app.post("/chat")
-def chat(request: AIRequest, user_id: int = Depends(get_current_user)):
+def chat(request: AIRequest, user_id: int = Depends(verify_token), session: Session = Depends(get_session)):
     if not LLM_API_KEY:
         raise HTTPException(status_code=500, detail="LLM API key not configured")
     
+    conv = get_conversation_by_id(request.conversation_id, session)
+    if not conv:
+        raise HTTPException(status_code=404, detail="La conversation n'éxiste pas !")
+    if conv.user_id != user_id:
+        raise HTTPException(status_code=403, detail="Vous n'êtes pas autorisé a rentrer !")
+    
+    
     # sauvegarder le message de l'utilisateur
-    add_message_to_conversation(user_id, "user", request.message)
+    add_message(
+        conversation_id=request.conversation_id,
+        role="user",
+        content=request.message,
+        session=session
+    )
     
     # appeler l'api ia
     headers = {
@@ -117,11 +132,14 @@ def chat(request: AIRequest, user_id: int = Depends(get_current_user)):
         "Content-Type": "application/json"
     }
     
+    historique_brut = get_message_by_conversation(request.conversation_id, session)
+    message_pour_ia = []
+    for m in historique_brut:
+        message_pour_ia.append({"role": m.role, "content": m.content})
+
     payload = {
         "model": LLM_MODEL,
-        "messages": [
-            {"role": "user", "content": request.message}
-        ]
+        "messages": message_pour_ia
     }
     
     try:
@@ -135,9 +153,15 @@ def chat(request: AIRequest, user_id: int = Depends(get_current_user)):
         
         data = response.json()
         ai_response = data["choices"][0]["message"]["content"]
+        ai_content = "Réponse de l'IA..."
         
         # sauvegarder la reponse de l'ia
-        add_message_to_conversation(user_id, "assistant", ai_response)
+        add_message(
+            conversation_id=request.conversation_id,
+            role="assistant",
+            content=ai_response,
+            session=session
+        )
         
         return {"message": ai_response, "status": "success"}
     

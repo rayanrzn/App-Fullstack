@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from bcrypt import hashpw, checkpw, gensalt
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from database import get_user_by_email, create_user
+from Databases import get_user_by_email, create_user
 
 # hasher un mot de passe avec bcrypt
 def hash_password(password: str) -> str:
@@ -33,14 +33,14 @@ def verify_token(token: str):
         return None
 
 # enregistrer un nouvel utilisateur
-def register_user(email: str, password: str):
+def register_user(email: str, password: str, session):
     # verifier si l'utilisateur existe
     if get_user_by_email(email):
         return None
     
     # hasher et creer
     password_hash = hash_password(password)
-    user = create_user(email, password_hash)
+    user = create_user(email, password_hash, session)
     
     # creer le token
     token = create_access_token(user["id"])
@@ -48,8 +48,8 @@ def register_user(email: str, password: str):
     return {"token": token}
 
 # connecter un utilisateur
-def login_user(email: str, password: str):
-    user = get_user_by_email(email)
+def login_user(email: str, password: str, session):
+    user = get_user_by_email(email,session)
     
     # verifier email et password
     if not user or not verify_password(password, user["password_hash"]):
