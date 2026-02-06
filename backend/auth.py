@@ -2,27 +2,30 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from bcrypt import hashpw, checkpw, gensalt
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from database import get_user_by_email, create_user
+from database import get_user_by_email, create_user, Session
 
-# hasher un mot de passe avec bcrypt
+# --- SÉCURITÉ MOT DE PASSE ---
+
 def hash_password(password: str) -> str:
+    """Hache un mot de passe avec bcrypt."""
     return hashpw(password.encode(), gensalt()).decode()
 
-# verifier un mot de passe contre son hash
 def verify_password(password: str, hash: str) -> bool:
+    """Vérifie un mot de passe par rapport à son hash."""
     return checkpw(password.encode(), hash.encode())
 
-# creer un jwt token avec user_id et expiration
+# --- GESTION DES TOKENS JWT ---
+
 def create_access_token(user_id: int) -> str:
+    """Crée un token JWT incluant l'ID utilisateur et une expiration."""
     payload = {
         "user_id": user_id,
         "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     }
-    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    return token 
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-# verifier et decoder un jwt token
 def verify_token(token: str):
+    """Décode et vérifie la validité d'un token JWT."""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id: int = payload.get("user_id")
@@ -32,30 +35,37 @@ def verify_token(token: str):
     except JWTError:
         return None
 
-# enregistrer un nouvel utilisateur
-def register_user(email: str, password: str, session):
-    # verifier si l'utilisateur existe
-    if get_user_by_email(email):
+# --- LOGIQUE MÉTIER (AUTH) ---
+
+def register_user(email: str, password: str, session: Session):
+    """Inscrit un nouvel utilisateur et retourne un token."""
+    # Vérification de l'existence
+    if get_user_by_email(email, session):
         return None
     
-    # hasher et creer
+    # Création de l'utilisateur
     password_hash = hash_password(password)
     user = create_user(email, password_hash, session)
     
-    # creer le token
-    token = create_access_token(user["id"])
+    # Génération du token (accès via .id car c'est un objet SQLModel)
+    token = create_access_token(user.id)
     
-    return {"token": token}
+    # Retourne les clés attendues par TokenResponse dans main.py
+    return {
+        "access_token": token, 
+        "token_type": "bearer"
+    }
 
-# connecter un utilisateur
-def login_user(email: str, password: str, session):
-    user = get_user_by_email(email,session)
+def login_user(email: str, password: str, session: Session):
+    """Connecte un utilisateur existant et retourne un token."""
+    user = get_user_by_email(email, session)
     
-    # verifier email et password
-    if not user or not verify_password(password, user["password_hash"]):
+    if not user or not verify_password(password, user.password_hash):
         return None
     
-    # creer le token
-    token = create_access_token(user["id"])
+    token = create_access_token(user.id)
     
-    return {"token": token}
+    return {
+        "access_token": token, 
+        "token_type": "bearer"
+    }

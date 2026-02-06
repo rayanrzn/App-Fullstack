@@ -9,19 +9,19 @@ def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 # Table USER
-class User (SQLModel) :
+class User (SQLModel, table=True) :
     id : Optional[int] = Field(default=None, primary_key=True)
     email : str
     password_hash : str
 
 # Table Conversation
-class Conversation (SQLModel) :
+class Conversation (SQLModel, table=True) :
     user_id : int = Field(foreign_key="user.id")
     id : Optional[int] = Field(default=None, primary_key=True)
     titre : str
 
 # Table Message
-class Message (SQLModel) :
+class Message (SQLModel, table=True) :
     conversation_id : int = Field(foreign_key="conversation.id")
     id : Optional[int] = Field(default=None, primary_key=True)
     role : str

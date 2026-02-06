@@ -1,25 +1,24 @@
 import os
-from dotenv import load_dotenv
 
-# charger les variables d'environnement depuis .env
-load_dotenv()
-
-# clé secrète pour les tokens jwt
-SECRET_KEY = os.getenv("SECRET_KEY", "azertyuiopqsdfghjklmwxcvbn1234567890")
-# algorithme pour signer les tokens
+# Clé secrète pour les tokens JWT
+SECRET_KEY = "une_cle_tres_longue_et_securisee_12345"
 ALGORITHM = "HS256"
-# durée de validité du token en minutes
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
-# dossier de la base de données
-DATABASE_DIR = os.getenv("DATABASE_DIR", "./")
 
-# clé API pour OpenRouter
-LLM_API_KEY = os.getenv("LLM_API_KEY", "")
-# URL de l'API OpenRouter
-LLM_API_URL = os.getenv("LLM_API_URL", "https://openrouter.ai/api/v1")
-# modèle LLM à utiliser
-LLM_MODEL = os.getenv("LLM_MODEL", "meta-llama/llama-3-8b-instruct")
+# --- CONFIGURATION IA (OPENROUTER) ---
 
-# On récupère le chemin du dossier où se trouve le fichier config.py lui-même
+# REMPLACE CECI PAR TA VRAIE CLÉ OPENROUTER
+LLM_API_KEY = "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" 
+
+LLM_API_URL = "https://openrouter.ai/api/v1"
+LLM_MODEL = "nvidia/nemotron-3-nano-30b-a3b:free"
+
+# --- BASE DE DONNÉES ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'database.db')}"
+
+
+
+
+
+
