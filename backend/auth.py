@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from bcrypt import hashpw, checkpw, gensalt
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from Databases import get_user_by_email, create_user
+from database import get_user_by_email, create_user
 
 # hasher un mot de passe avec bcrypt
 def hash_password(password: str) -> str:

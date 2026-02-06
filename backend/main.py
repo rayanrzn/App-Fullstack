@@ -6,7 +6,7 @@ from typing import List, Optional
 from auth import register_user, login_user, verify_token
 import requests
 from config import LLM_API_KEY, LLM_API_URL, LLM_MODEL
-from Databases import *
+from database import *
 
 app = FastAPI()
 security = HTTPBearer()
