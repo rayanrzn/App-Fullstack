@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from models import UserRegister, UserLogin, TokenResponse, AIRequest, ConversationResponse
+from pydantic import BaseModel
+from typing import List, Optional
 from auth import register_user, login_user, verify_token
 from database import get_or_create_conversation, add_message_to_conversation, get_user_by_id
 import requests
@@ -9,6 +10,44 @@ from config import LLM_API_KEY, LLM_API_URL, LLM_MODEL
 
 app = FastAPI()
 security = HTTPBearer()
+
+# formulaire d'inscription
+class UserRegister(BaseModel):
+    email: str
+    password: str
+
+# formulaire de connexion
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+# reponse utilisateur (sans le mot de passe)
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    created_at: str
+
+# un message dans une conversation
+class Message(BaseModel):
+    role: str  # "user" ou "assistant"
+    content: str
+    timestamp: str
+
+# une conversation complete avec tous ses messages
+class ConversationResponse(BaseModel):
+    id: int
+    user_id: int
+    messages: List[Message]
+    created_at: str
+
+# requete vers l'ia
+class AIRequest(BaseModel):
+    message: str
+
+# reponse avec token jwt
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
 
 # permettre les requetes du frontend
 app.add_middleware(
@@ -61,7 +100,7 @@ def get_user_conversations(user_id: int = Depends(get_current_user)):
     conv = get_or_create_conversation(user_id)
     return conv
 
-# envoyer un message a l'ia
+# envoyer un message à l'IA et sauvegarder la réponse
 @app.post("/chat")
 def chat(request: AIRequest, user_id: int = Depends(get_current_user)):
     if not LLM_API_KEY:

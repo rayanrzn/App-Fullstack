@@ -19,7 +19,7 @@ def create_access_token(user_id: int) -> str:
         "exp": datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    return token
+    return token 
 
 # verifier et decoder un jwt token
 def verify_token(token: str):
@@ -45,7 +45,7 @@ def register_user(email: str, password: str):
     # creer le token
     token = create_access_token(user["id"])
     
-    return {"user_id": user["id"], "email": user["email"], "token": token}
+    return {"token": token}
 
 # connecter un utilisateur
 def login_user(email: str, password: str):
@@ -58,4 +58,4 @@ def login_user(email: str, password: str):
     # creer le token
     token = create_access_token(user["id"])
     
-    return {"user_id": user["id"], "email": user["email"], "token": token}
+    return {"token": token}
